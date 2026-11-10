@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1514">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono-192.png">
+<title>Altar de la Memoria 3D</title>
+<style>
+  :root{
+    --ink:#0b1514; --deep:#0f4c4a; --ivory:#f3ead7; --gold:#e0a82e; --gold-soft:#ffd978; --terra:#c4552d;
+    --glass:#0f1c1b; --line:rgba(243,234,215,.24); --muted:#b7c4bc;
+    --fg:var(--ivory); --accent:var(--gold); --on-accent:#1b2523; --k:1;
+  }
+  body.hc{--glass:#000; --line:#fff; --muted:#f2f2f2; --fg:#fff; --accent:#ffd84a; --on-accent:#000}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--ink);color:var(--fg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:calc(16px*var(--k));line-height:1.45}
+  body{overflow:hidden}
+  button{font:inherit;color:inherit;cursor:pointer}
+  :focus-visible{outline:3px solid var(--gold-soft);outline-offset:2px}
+  [hidden]{display:none!important}
+  h1,h2{margin:0;letter-spacing:-.01em;line-height:1.1;text-wrap:balance}
+  p{margin:0}
+
+  /* ---------- inicio ---------- */
+  #start{position:fixed;inset:0;z-index:40;overflow:auto;display:flex;flex-direction:column;
+    background:radial-gradient(120% 80% at 50% 0%,#146a66 0%,#0f4c4a 38%,#0b1514 100%)}
+  #start .band{height:18px;flex:none;background:
+    linear-gradient(135deg,var(--gold) 25%,transparent 25%) -9px 0/18px 18px,
+    linear-gradient(225deg,var(--terra) 25%,transparent 25%) -9px 0/18px 18px,var(--deep)}
+  #start .inner{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;width:100%;max-width:560px;margin:0 auto;
+    padding:26px max(22px,env(safe-area-inset-right)) max(26px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left))}
+  .eyebrow{font-size:.78em;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-soft);font-weight:700}
+  #start h1{font-size:clamp(2.2rem,9vw,3.4rem);font-weight:800}
+  #start h1 em{font-style:normal;color:var(--gold)}
+  .lead{color:#dfe8e1;max-width:46ch}
+  .meta{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.85em;background:rgba(255,255,255,.06)}
+  ol.cap{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  ol.cap li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;font-size:.92em;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+  ol.cap .n{width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--on-accent);font-weight:800;font-size:.8em;display:grid;place-items:center}
+  ol.cap .t{color:var(--muted);font-variant-numeric:tabular-nums}
+  .btns{display:grid;gap:10px}
+  .btn{min-height:56px;border-radius:16px;border:2px solid var(--accent);background:transparent;padding:0 20px;font-weight:700;color:var(--fg)}
+  .btn.primary{background:var(--accent);color:var(--on-accent)}
+  .btn:disabled{opacity:.45;cursor:default}
+  #problem{border-left:4px solid var(--terra);background:rgba(0,0,0,.4);padding:10px 14px;border-radius:0 12px 12px 0}
+  .fine{font-size:.82em;color:var(--muted);max-width:50ch}
+
+  /* ---------- pantalla de la experiencia: columna sin superposiciones ---------- */
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ink);overflow:hidden}
+  #top{flex:none;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));display:grid;gap:7px;
+    background:linear-gradient(180deg,#000,#0b1514)}
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hud b{font-size:.95em;font-weight:800;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tools{flex:none}
+  .tools{display:flex;gap:6px}
+  .tool{min-width:44px;min-height:40px;border-radius:999px;border:1.5px solid var(--line);background:rgba(0,0,0,.5);padding:0 12px;font-size:.82em;font-weight:700}
+  .tool[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  #line{display:flex;gap:4px}
+  .seg{position:relative;height:28px;padding:11px 0;border:0;background:transparent;min-width:6px}
+  .seg::before{content:"";position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(243,234,215,.28)}
+  .seg i{position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:var(--accent);width:0}
+  .clock{display:flex;justify-content:space-between;font-size:.8em;color:#e8efe9;font-variant-numeric:tabular-nums}
+
+  #vwrap{flex:none;display:flex;justify-content:center;background:#000;padding:0 max(0px,env(safe-area-inset-right)) 0 max(0px,env(safe-area-inset-left))}
+  #vid{display:block;width:100%;max-width:560px;max-height:26dvh;aspect-ratio:16/9;background:#000;object-fit:contain}
+
+  #stage{position:relative;flex:1 1 auto;min-height:130px}
+  model-viewer{position:absolute;inset:0;width:100%;height:100%;
+    background:radial-gradient(90% 70% at 50% 25%,#17706b 0%,#0f4c4a 45%,#0b1514 100%);--poster-color:transparent}
+  .hs{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 12px 0 8px;border-radius:999px;border:2px solid var(--gold-soft);
+    background:rgba(11,21,20,.88);color:#fff;font-size:.78em;font-weight:700;white-space:nowrap;cursor:pointer}
+  .hs b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--gold);color:var(--on-accent);font-size:.9em}
+  .hs.on{background:var(--gold);color:var(--on-accent);border-color:#fff}
+  .hs.on b{background:var(--on-accent);color:var(--gold)}
+  #ar{position:absolute;right:max(10px,env(safe-area-inset-right));bottom:10px;min-height:44px;border-radius:999px;border:2px solid var(--gold-soft);background:rgba(11,21,20,.9);padding:0 16px;font-weight:700;font-size:.85em}
+  #hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-size:.8em;background:rgba(0,0,0,.65);border:1px solid var(--line);border-radius:999px;padding:4px 12px;white-space:nowrap}
+
+  #sheet{flex:0 1 auto;min-height:0;max-height:48dvh;overflow:auto;background:var(--glass);border-top:1px solid var(--line);border-radius:20px 20px 0 0;
+    padding:12px max(16px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+  #chapter{min-width:0}
+  .kicker{font-size:.76em;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-soft);font-weight:700}
+  #chapter h2{font-size:1.35em;margin-top:2px}
+  .caption{margin-top:8px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+  .caption small{display:block;color:var(--muted);margin-bottom:3px}
+  .caption .lugar{display:inline-block;margin-bottom:5px;font-size:.8em;font-weight:700;color:var(--gold-soft);letter-spacing:.04em}
+  .msg{margin-top:6px;font-size:.88em;color:#ffd1b8;min-height:1.2em}
+  #controls{display:grid;grid-template-columns:52px 1fr 52px;gap:10px;align-items:center;position:sticky;bottom:0;background:var(--glass);padding-top:6px}
+  .ic{width:52px;height:52px;border-radius:50%;border:2px solid var(--line);background:rgba(255,255,255,.07);display:grid;place-items:center}
+  .ic svg{width:22px;height:22px;fill:currentColor}
+  .ic:disabled{opacity:.35;cursor:default}
+  #pp{min-height:52px;border-radius:999px;border:0;background:var(--accent);color:var(--on-accent);font-weight:800}
+
+  form{display:grid;gap:10px;margin-top:6px}
+  label.l,legend{font-weight:700;font-size:.95em}
+  fieldset{border:0;padding:0;margin:0;display:grid;gap:2px}
+  textarea{width:100%;min-height:84px;border-radius:14px;border:2px solid var(--line);background:rgba(255,255,255,.07);color:var(--fg);padding:10px 12px;font:inherit;resize:vertical}
+  .opt{display:flex;gap:10px;align-items:flex-start;min-height:44px;font-size:.95em}
+  .opt input{width:24px;height:24px;margin-top:1px;accent-color:var(--accent);flex:none}
+  .opt.off{opacity:.45}
+  .row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+  .note{font-size:.85em;color:var(--muted)}
+  .sum{display:grid;gap:6px;margin-top:8px;font-size:.92em}
+  .sum div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .sum b{text-align:right}
+  .stack{display:grid;gap:8px;margin-top:10px}
+
+  /* fotos: miniaturas, diapositivas y visor ampliado */
+  #vfoto{display:block;width:100%;max-width:560px;max-height:26dvh;aspect-ratio:16/9;object-fit:contain;background:#000}
+  .fotos{display:flex;gap:8px;overflow-x:auto;margin-top:8px;padding-bottom:2px;max-width:100%;overscroll-behavior-x:contain}
+  .fotos button{flex:none;width:64px;height:64px;padding:0;border-radius:10px;border:2px solid var(--line);overflow:hidden;background:#000}
+  .fotos img{width:100%;height:100%;object-fit:cover;display:block}
+  #visor{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  #vimg{max-width:100%;max-height:70dvh;object-fit:contain;border-radius:8px}
+  #valt{max-width:60ch;text-align:center;color:#e8efe9;font-size:.92em}
+  #valt small{display:block;color:var(--muted);margin-top:3px}
+  .vbar{display:flex;gap:10px}
+  .vbar .btn{min-height:48px}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script type="module" src="libs/model-viewer.min.js"></script>
+</head>
+<body>
+
+<!-- ============ Inicio ============ -->
+<section id="start" aria-labelledby="t1">
+  <div class="band" aria-hidden="true"></div>
+  <div class="inner">
+    <p class="eyebrow">CAEDI · Bogotá · Memorias del territorio</p>
+    <h1 id="t1">Altar de la <em>Memoria</em></h1>
+    <p class="lead">Un altar en 3D que usted puede mirar en pantalla o poner sobre su mesa con realidad aumentada. Tres familias cuentan una memoria ligada a su territorio, y al final usted puede dejar la suya.</p>
+    <div class="meta">
+      <span class="pill" id="totalpill">Unos 3 minutos</span>
+      <span class="pill">6 capítulos</span>
+      <span class="pill">Con subtítulos</span>
+      <span class="pill" id="offpill" hidden>Funciona sin internet</span>
+    </div>
+    <ol class="cap" id="startcap" aria-label="Capítulos del recorrido"></ol>
+    <p id="problem" hidden></p>
+    <div class="btns">
+      <button class="btn primary" id="go" type="button" disabled>Cargando el altar…</button>
+    </div>
+    <p class="fine">No se usa la cámara salvo que usted pida ver el altar en su mesa. No se pide el micrófono. Cada voz se muestra con el permiso de la persona.</p>
+  </div>
+</section>
+
+<!-- ============ Experiencia ============ -->
+<div id="app" inert aria-hidden="true">
+  <header id="top">
+    <div class="hud">
+      <b>Altar de la Memoria</b>
+      <div class="tools">
+        <button class="tool" id="tsize" type="button" aria-label="Cambiar tamaño del texto">A+</button>
+        <button class="tool" id="tsub" type="button" aria-pressed="true" aria-label="Mostrar subtítulos">CC</button>
+        <button class="tool" id="thc" type="button" aria-pressed="false" aria-label="Alto contraste"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style="display:block;margin:auto"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+        <button class="tool" id="tmus" type="button" aria-pressed="true" aria-label="Música de fondo" hidden>♪</button>
+      </div>
+    </div>
+    <nav id="line" aria-label="Capítulos"></nav>
+    <div class="clock"><span id="chaplabel"></span><span id="clock">0:00 / 3:00</span></div>
+  </header>
+
+  <div id="vwrap" hidden><video id="vid" playsinline webkit-playsinline preload="auto" aria-label="Video de la memoria"></video><img id="vfoto" alt="" hidden></div>
+
+  <div id="stage">
+    <model-viewer id="mv" src="modelo/altar.glb" alt="Altar en 3D con un panel pintado, una vela encendida y tres soportes: el río, el canto y una persona"
+      camera-controls touch-action="pan-y" interaction-prompt="none"
+      camera-orbit="0deg 72deg 1.35m" camera-target="0m 0.22m 0m" min-camera-orbit="auto auto 0.3m" max-camera-orbit="auto auto 2.2m"
+      field-of-view="32deg" interpolation-decay="70" exposure="1.15" shadow-intensity="1" shadow-softness="0.8"
+      loading="eager" reveal="auto"
+      ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" ar-scale="auto">
+      <button class="hs" slot="hotspot-rio"     data-position="-0.20m 0.115m 0.10m" data-normal="0 1 0" data-visibility-attribute="visible" data-k="rio"><b>1</b>El río</button>
+      <button class="hs" slot="hotspot-canto"   data-position="0m 0.125m 0.11m"     data-normal="0 1 0" data-visibility-attribute="visible" data-k="canto"><b>2</b>El canto</button>
+      <button class="hs" slot="hotspot-persona" data-position="0.20m 0.15m 0.10m"   data-normal="0 1 0" data-visibility-attribute="visible" data-k="persona"><b>3</b>Una persona</button>
+    </model-viewer>
+    <p id="hint" hidden></p>
+    <button id="ar" type="button" hidden>Ver en mi mesa (AR)</button>
+  </div>
+
+  <section id="sheet" aria-label="Capítulo actual">
+    <div id="chapter" aria-live="polite"></div>
+    <div id="controls">
+      <button class="ic" id="prev" type="button" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button id="pp" type="button">Pausar</button>
+      <button class="ic" id="next" type="button" aria-label="Capítulo siguiente"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/></svg></button>
+    </div>
+  </section>
+</div>
+
+<!-- Visor de fotos ampliadas -->
+<div id="visor" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
+  <img id="vimg" alt="">
+  <p id="valt"></p>
+  <div class="vbar">
+    <button class="btn" id="vant" type="button" aria-label="Foto anterior">Anterior</button>
+    <button class="btn primary" id="vcerrar" type="button">Cerrar</button>
+    <button class="btn" id="vsig" type="button" aria-label="Foto siguiente">Siguiente</button>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   CONTENIDO. Edite solo esta sección.
+   Reemplace lo que está entre corchetes con el lugar, el nombre y la
+   transcripción de cada persona, con su permiso por escrito.
+   `vista` es hacia dónde viaja la cámara en cada capítulo.
+   ================================================================== */
+var MEMORIAS = {
+  rio:     { nombre:'El río',      video:'video/rio.mp4',     audio:'audio/rio.mp3',
+             lugar:'[Lugar de origen, dicho por la persona]',
+             quien:'[Nombre de la persona, con su permiso]',
+             texto:'[Transcripción de la grabación autorizada sobre el río y el lugar de origen.]',
+             vista:{ target:'-0.20m 0.09m 0.10m', orbit:'-22deg 66deg 0.55m' } },
+  canto:   { nombre:'El canto',    video:'video/canto.mp4',   audio:'audio/canto.mp3',
+             lugar:'[Lugar de origen del canto]',
+             quien:'[Nombre de la persona o del grupo, con su permiso]',
+             texto:'[Transcripción o descripción del canto. Si es de uso litúrgico, confirme antes que puede mostrarse.]',
+             vista:{ target:'0m 0.10m 0.11m', orbit:'0deg 64deg 0.55m' } },
+  persona: { nombre:'Una persona', video:'video/persona.mp4', audio:'audio/persona.mp3',
+             lugar:'[Lugar de origen de la persona]',
+             quien:'[Nombre de la persona, con su permiso]',
+             texto:'[Transcripción de lo que esta persona quiere que se recuerde.]',
+             vista:{ target:'0.20m 0.10m 0.10m', orbit:'22deg 66deg 0.55m' } }
+};
+
+var AMPLIO = { target:'0m 0.22m 0m', orbit:'0deg 72deg 1.35m' };
+var CAPITULOS = [
+  { id:'bienvenida', titulo:'Bienvenida',  tipo:'tarjeta', dur:10, vista:AMPLIO,
+    texto:'Este altar guarda tres memorias de familias de CAEDI, cada una ligada a su territorio de origen: el río, el canto y una persona. Escúchelas en orden, o toque un punto del altar. Al final podrá dejar la suya, con sus permisos.' },
+  { id:'rio',        titulo:'El río',      tipo:'memoria' },
+  { id:'canto',      titulo:'El canto',    tipo:'memoria' },
+  { id:'persona',    titulo:'Una persona', tipo:'memoria' },
+  { id:'memoria',    titulo:'Su memoria',  tipo:'formulario', dur:30, vista:{ target:'0m 0.14m -0.05m', orbit:'0deg 76deg 0.85m' } },
+  { id:'cierre',     titulo:'Gracias',     tipo:'cierre', dur:10, vista:AMPLIO }
+];
+
+/* ==================================================================
+   Si existe contenido.json (lo actualiza herramientas/preparar_medios.py),
+   sus textos, videos y fotos reemplazan los valores de arriba.
+   ================================================================== */
+var MUSICA = null;  /* música de fondo opcional: { archivo, volumen, credito } */
+function aplicarContenido(j){
+  if(!j || !j.memorias) return;
+  Object.keys(j.memorias).forEach(function(k){
+    var src = j.memorias[k], dst = MEMORIAS[k];
+    if(!dst) return;
+    ['nombre','lugar','quien','texto','video','poster','audio','fotos'].forEach(function(c){ if(src[c]!==undefined) dst[c] = src[c]; });
+  });
+  if(j.bienvenida) CAPITULOS[0].texto = j.bienvenida;
+  if(j.musica && j.musica.archivo) MUSICA = j.musica;
+  CAPITULOS.forEach(function(c){ if(c.tipo==='memoria') c.titulo = MEMORIAS[c.id].nombre; });
+  Array.prototype.forEach.call(document.querySelectorAll('.hs'), function(b, i){
+    var m = MEMORIAS[b.getAttribute('data-k')];
+    if(m){ b.textContent = ''; var n = document.createElement('b'); n.textContent = i+1; b.appendChild(n); b.appendChild(document.createTextNode(m.nombre)); }
+  });
+}
+fetch('contenido.json').then(function(r){ return r.ok ? r.json() : null; })
+  .then(aplicarContenido).catch(function(){}).then(iniciar);
+
+function iniciar(){
+  var $ = function(id){ return document.getElementById(id); };
+  var mv = $('mv'), vid = $('vid');
+  var SIZES = [1,1.15,1.3], si = 0, subs = true;
+  var idx = -1, pausado = false, transcurrido = 0, media = null, listo = false;
+  var diapo = null, soloFotos = false, visor = { lista:[], i:0, estaba:false };
+  /* Música de fondo: suena en bienvenida, formulario y cierre; se calla durante las memorias */
+  var fondo = null, musicaOn = true;
+  if(MUSICA){
+    fondo = new Audio(MUSICA.archivo); fondo.loop = true; fondo.preload = 'auto';
+    fondo.volume = Math.min(1, Math.max(0, MUSICA.volumen || 0.25));
+    fondo.onerror = function(){ fondo = null; $('tmus').hidden = true; };
+    $('tmus').hidden = false;
+  }
+  function musicaSegun(){
+    if(!fondo || idx < 0) return;
+    var c = CAPITULOS[idx];
+    /* durante una memoria con voz se calla; en las diapositivas sin sonido acompaña */
+    if(!musicaOn || pausado || (c.tipo === 'memoria' && !soloFotos)) fondo.pause();
+    else { var p = fondo.play(); if(p && p.catch) p.catch(function(){}); }
+  }
+  var durMem = { rio:45, canto:45, persona:45 };
+  var envio = { estado:'ninguno', id:null, token:null };
+  var ultimo = { texto:'', aparece:'con', exp:true, arc:false, sag:false };
+
+  function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0'+(s%60)).slice(-2); }
+  function dur(i){ var c = CAPITULOS[i]; return c.tipo==='memoria' ? durMem[c.id] : c.dur; }
+  function total(){ var t=0; for(var i=0;i<CAPITULOS.length;i++) t += dur(i); return t; }
+  function antes(i){ var t=0; for(var j=0;j<i;j++) t += dur(j); return t; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function aviso(txt){ var e=$('msg'); if(e) e.textContent = txt; }
+  function problema(txt){ var p=$('problem'); p.textContent=txt; p.hidden=false; }
+
+  /* ---------- inicio ---------- */
+  function pintarInicio(){
+    $('startcap').innerHTML = CAPITULOS.map(function(c,i){
+      return '<li><span class="n">'+(i+1)+'</span><span>'+c.titulo+'</span><span class="t">'+fmt(dur(i))+'</span></li>';
+    }).join('');
+    $('totalpill').textContent = 'Unos ' + Math.round(total()/60) + ' minutos';
+  }
+  /* Duración real de cada memoria: la del video; si no hay, la del audio; si no, 6 s por foto */
+  function repintar(){ pintarInicio(); if(idx>=0) pintarLinea(); }
+  function medir(k){
+    var m = MEMORIAS[k], hecho = false;
+    function porFotos(){ if(hecho) return; hecho = true; var n = (m.fotos||[]).length; if(n){ durMem[k] = Math.max(15, n*6); repintar(); } }
+    function probar(tag, src, siFalla){
+      if(!src) return siFalla();
+      var listoP = false;
+      try{
+        var e = document.createElement(tag); e.preload = 'metadata'; e.muted = true;
+        e.onloadedmetadata = function(){ if(listoP) return; listoP = true;
+          if(isFinite(e.duration) && e.duration>1){ hecho = true; durMem[k] = e.duration; repintar(); } else siFalla(); };
+        e.onerror = function(){ if(listoP) return; listoP = true; siFalla(); };
+        e.src = src;
+      }catch(err){ siFalla(); }
+    }
+    probar('video', m.video, function(){ probar('audio', m.audio, porFotos); });
+  }
+  Object.keys(MEMORIAS).forEach(medir);
+  pintarInicio();
+
+  /* Espera a que el visor 3D y el modelo estén cargados */
+  var esperando = setTimeout(function(){
+    if(!listo) problema('El altar 3D está tardando o no cargó. Revise que existan libs/model-viewer.min.js y modelo/altar.glb en el sitio, o ejecute herramientas/crear_altar.py.');
+  }, 12000);
+  function marcarListo(){
+    if(listo) return; listo = true; clearTimeout(esperando);
+    $('go').disabled = false; $('go').textContent = 'Comenzar';
+    $('problem').hidden = true;
+    if(mv.canActivateAR) $('ar').hidden = false;
+  }
+  mv.addEventListener('load', marcarListo);
+  mv.addEventListener('error', function(){ problema('No se pudo cargar modelo/altar.glb. Ejecute herramientas/crear_altar.py y suba el archivo.'); });
+  if(mv.loaded) marcarListo();
+
+  /* ---------- entrar ---------- */
+  $('go').onclick = function(){
+    $('start').hidden = true;
+    var app = $('app'); app.removeAttribute('inert'); app.removeAttribute('aria-hidden');
+    irA(0);
+  };
+
+  /* ---------- cámara del visor ---------- */
+  function vistaDe(c){ return c.tipo==='memoria' ? MEMORIAS[c.id].vista : c.vista; }
+  function viajar(c){
+    var v = vistaDe(c);
+    mv.cameraTarget = v.target; mv.cameraOrbit = v.orbit;
+    var k = c.tipo==='memoria' ? c.id : null;
+    Array.prototype.forEach.call(mv.querySelectorAll('.hs'), function(b){
+      b.classList.toggle('on', b.getAttribute('data-k')===k);
+    });
+  }
+  Array.prototype.forEach.call(mv.querySelectorAll('.hs'), function(b){
+    b.addEventListener('click', function(){
+      var k = b.getAttribute('data-k');
+      for(var i=0;i<CAPITULOS.length;i++) if(CAPITULOS[i].id===k){ irA(i); break; }
+    });
+  });
+  $('ar').onclick = function(){ try{ mv.activateAR(); }catch(e){ aviso('No se pudo abrir la realidad aumentada en este teléfono.'); } };
+
+  /* ---------- línea de tiempo ---------- */
+  function pintarLinea(){
+    $('line').innerHTML = CAPITULOS.map(function(c,i){
+      return '<button class="seg" type="button" data-i="'+i+'" style="flex:'+dur(i).toFixed(1)+'" aria-label="Capítulo '+(i+1)+': '+c.titulo+'"'+(i===idx?' aria-current="step"':'')+'><i></i></button>';
+    }).join('');
+    Array.prototype.forEach.call($('line').querySelectorAll('.seg'), function(b){
+      b.onclick = function(){ irA(+b.getAttribute('data-i')); };
+    });
+    pintarProgreso();
+  }
+  function actual(){ var c = CAPITULOS[idx]; return (c.tipo==='memoria' && media) ? (media.currentTime||0) : transcurrido; }
+  function pintarProgreso(){
+    if(idx<0) return;
+    var segs = $('line').querySelectorAll('.seg i');
+    for(var i=0;i<segs.length;i++){
+      var p = i<idx ? 100 : (i===idx ? Math.min(100, actual()/dur(i)*100) : 0);
+      segs[i].style.width = p + '%';
+    }
+    $('clock').textContent = fmt(antes(idx)+Math.min(actual(),dur(idx))) + ' / ' + fmt(total());
+  }
+  setInterval(function(){
+    if(idx<0) return;
+    var c = CAPITULOS[idx];
+    if(!pausado && (c.tipo!=='memoria' || soloFotos)){
+      transcurrido += 0.25;
+      if((c.tipo==='tarjeta' && transcurrido >= c.dur) || (soloFotos && transcurrido >= dur(idx))) siguiente();
+    }
+    pintarProgreso();
+  }, 250);
+
+  /* ---------- reproducción ---------- */
+  function detener(){
+    if(media){ try{ media.pause(); }catch(e){} media = null; }
+    try{ vid.pause(); vid.removeAttribute('src'); vid.load(); }catch(e){}
+    pararDiapos(); soloFotos = false;
+    vid.hidden = false; $('vfoto').hidden = true;
+    $('vwrap').hidden = true;
+  }
+  function rotuloPP(){ $('pp').textContent = pausado ? 'Seguir' : 'Pausar'; }
+
+  /* Diapositivas: las fotos de la memoria ocupan el lugar del video cuando no hay video */
+  function pararDiapos(){ if(diapo){ clearInterval(diapo); diapo = null; } }
+  function diapositivas(m, cada){
+    var fotos = m.fotos || []; if(!fotos.length) return false;
+    var i = 0, im = $('vfoto');
+    function poner(){ var f = fotos[i % fotos.length]; im.src = f.archivo; im.alt = f.alt || ''; i++; }
+    vid.hidden = true; im.hidden = false; $('vwrap').hidden = false; poner();
+    pararDiapos();
+    if(fotos.length > 1) diapo = setInterval(function(){ if(!pausado) poner(); }, Math.max(4, cada || 6) * 1000);
+    return true;
+  }
+  function soloImagenes(m){
+    if(diapositivas(m, 6)){ soloFotos = true; transcurrido = 0; musicaSegun(); return; }
+    aviso('Todavía no hay video, audio ni fotos para esta memoria. Ejecute herramientas/preparar_medios.py.');
+  }
+  function respaldoAudio(m){
+    if(!m.audio) return soloImagenes(m);
+    var a = new Audio(m.audio); media = a;
+    a.onended = siguiente;
+    a.onplaying = function(){ if(!diapo) diapositivas(m, (a.duration || 30) / Math.max(1, (m.fotos || []).length)); };
+    a.onerror = function(){ media = null; soloImagenes(m); };
+    var p = a.play(); if(p && p.catch) p.catch(function(e){ if(e && e.name==='NotAllowedError'){ pausado=true; rotuloPP(); } });
+  }
+  function reproducir(clave){
+    var m = MEMORIAS[clave], fallo = false, reintento = false;
+    if(!m.video){ respaldoAudio(m); return; }
+    if(m.poster) vid.poster = m.poster; else vid.removeAttribute('poster');
+    function fail(){ if(fallo) return; fallo = true; $('vwrap').hidden = true; vid.removeAttribute('src'); vid.load(); respaldoAudio(m); }
+    /* Si la descarga se corta, se reintenta una vez desde el segundo donde iba antes de usar el audio */
+    function alErrar(){
+      if(reintento || fallo) return fail();
+      reintento = true;
+      var t = vid.currentTime || 0;
+      vid.src = m.video; vid.load();
+      vid.onloadedmetadata = function(){ try{ if(t>0) vid.currentTime = t; }catch(e){} vid.onloadedmetadata = null; };
+      var p = vid.play(); if(p && p.catch) p.catch(function(){});
+    }
+    vid.onerror = alErrar; vid.onended = siguiente;
+    vid.onplaying = function(){ $('vwrap').hidden = false; };
+    vid.src = m.video; vid.load(); media = vid;
+    var p = vid.play();
+    if(p && p.catch) p.catch(function(e){
+      if(e && e.name==='NotAllowedError'){ $('vwrap').hidden = false; pausado = true; rotuloPP(); aviso('Toque Seguir para reproducir.'); }
+      else if(!e || e.name!=='AbortError') fail();
+    });
+  }
+
+  /* ---------- capítulos ---------- */
+  function cabecera(i){ return '<p class="kicker">'+(i+1)+' de '+CAPITULOS.length+' · '+CAPITULOS[i].titulo+'</p>'; }
+  function pintarCapitulo(){
+    var c = CAPITULOS[idx], h = '';
+    $('chaplabel').textContent = (idx+1) + ' de ' + CAPITULOS.length + ' · ' + c.titulo;
+    $('controls').hidden = (c.tipo==='formulario' || c.tipo==='cierre');
+    $('prev').disabled = idx===0;
+    if(c.tipo==='tarjeta'){
+      h = cabecera(idx)+'<h2>'+c.titulo+'</h2><div class="caption">'+esc(c.texto)+'</div>';
+    } else if(c.tipo==='memoria'){
+      var m = MEMORIAS[c.id], fotos = m.fotos || [];
+      var tira = fotos.length ? '<div class="fotos" aria-label="Fotos de esta memoria">'+fotos.map(function(f,i){
+        return '<button type="button" data-f="'+i+'" aria-label="Ampliar foto '+(i+1)+': '+esc(f.alt||'')+'"><img src="'+esc(f.archivo)+'" alt="" loading="lazy"></button>';
+      }).join('')+'</div>' : '';
+      h = cabecera(idx)+'<h2>'+esc(m.nombre)+'</h2><div class="caption"><span class="lugar">'+esc(m.lugar)+'</span><small>'+esc(m.quien)+'</small>'+(subs?esc(m.texto):'')+'</div>'+tira+'<p class="msg" id="msg" role="status"></p>';
+    } else if(c.tipo==='formulario'){
+      h = formulario();
+    } else {
+      h = cierre();
+    }
+    $('chapter').innerHTML = h;
+    rotuloPP(); enlazar();
+  }
+
+  function formulario(){
+    return cabecera(idx)+'<h2>¿Qué quiere que se recuerde?</h2>'+
+    '<form id="f" novalidate>'+
+      '<label class="l" for="ftexto">Su memoria (opcional)</label>'+
+      '<textarea id="ftexto" maxlength="280" placeholder="Escriba aquí, en sus palabras">'+esc(ultimo.texto)+'</textarea>'+
+      '<fieldset><legend>¿Cómo quiere aparecer?</legend>'+
+        '<label class="opt"><input type="radio" name="ap" value="con" '+(ultimo.aparece==='con'?'checked':'')+'><span>Con mi nombre</span></label>'+
+        '<label class="opt"><input type="radio" name="ap" value="sin" '+(ultimo.aparece==='sin'?'checked':'')+'><span>Sin mi nombre</span></label>'+
+      '</fieldset>'+
+      '<fieldset><legend>¿Dónde puede usarse?</legend>'+
+        '<label class="opt" id="o1"><input id="fexp" type="checkbox" '+(ultimo.exp?'checked':'')+'><span>En esta experiencia</span></label>'+
+        '<label class="opt" id="o2"><input id="farc" type="checkbox" '+(ultimo.arc?'checked':'')+'><span>En el archivo comunitario de CAEDI</span></label>'+
+        '<label class="opt"><input id="fsag" type="checkbox" '+(ultimo.sag?'checked':'')+'><span><b>Es contenido sagrado.</b> Solo para uso interno de CAEDI, nunca se muestra en el altar.</span></label>'+
+      '</fieldset>'+
+      '<p class="note">Un mayor de la comunidad revisa cada aporte antes de publicarlo. Usted puede retirarlo cuando quiera.</p>'+
+      '<p class="msg" id="msg" role="alert"></p>'+
+      '<div class="row"><button class="btn" id="omitir" type="button">Omitir</button><button class="btn primary" id="enviar" type="submit">Enviar y continuar</button></div>'+
+    '</form>';
+  }
+  function permisosTxt(){
+    if(ultimo.sag) return 'Solo uso interno de CAEDI (sagrado)';
+    var u = [ultimo.exp&&'esta experiencia', ultimo.arc&&'archivo de CAEDI'].filter(Boolean).join(', ');
+    return u || 'Ningún uso autorizado';
+  }
+  function cierre(){
+    var fin = {
+      servidor:'<b>Su aporte se envió a CAEDI.</b> Un mayor lo revisará antes de publicarlo.',
+      local:'<b>Su aporte quedó guardado solo en este teléfono.</b> Para enviarlo, copie el resumen y mándelo a CAEDI.',
+      omitido:'No dejó un aporte. Puede volver al capítulo 5 cuando quiera.',
+      ninguno:'No dejó un aporte.'
+    }[envio.estado];
+    var detalle = (envio.estado==='servidor'||envio.estado==='local') ?
+      '<div class="sum">'+
+        '<div><span>Aparece</span><b>'+(ultimo.aparece==='con'?'Con su nombre':'Sin su nombre')+'</b></div>'+
+        '<div><span>Usos autorizados</span><b>'+permisosTxt()+'</b></div>'+
+        '<div><span>Revisión</span><b>Un mayor, antes de publicar</b></div>'+
+      '</div>' : '';
+    var botones = '<div class="stack">'+
+      ((envio.estado==='servidor'||envio.estado==='local') ? '<button class="btn" id="copiar" type="button">Copiar resumen</button><button class="btn" id="retirar" type="button">Retirar mi aporte</button>' : '')+
+      '<button class="btn primary" id="otra" type="button">Volver a empezar</button></div>';
+    var creditos = (MUSICA && MUSICA.credito) ? '<p class="note">Música de fondo: '+esc(MUSICA.credito)+'</p>' : '';
+    return cabecera(idx)+'<h2>Gracias por escuchar</h2><div class="caption">'+fin+'</div>'+detalle+botones+creditos+'<p class="msg" id="msg" role="status"></p>';
+  }
+
+  function irA(i){
+    detener();
+    idx = Math.max(0, Math.min(CAPITULOS.length-1, i));
+    transcurrido = 0; pausado = false;
+    var c = CAPITULOS[idx];
+    pintarCapitulo(); viajar(c); pintarLinea();
+    if(c.tipo==='memoria') reproducir(c.id);
+    musicaSegun();
+  }
+  function siguiente(){ if(idx < CAPITULOS.length-1) irA(idx+1); }
+
+  /* ---------- envío ---------- */
+  function leerForm(){
+    ultimo.texto = $('ftexto').value.trim();
+    var r = document.querySelector('input[name="ap"]:checked'); ultimo.aparece = r ? r.value : 'con';
+    ultimo.sag = $('fsag').checked;
+    ultimo.exp = ultimo.sag ? false : $('fexp').checked;
+    ultimo.arc = ultimo.sag ? false : $('farc').checked;
+  }
+  function guardarLocal(datos){
+    try{ var l = JSON.parse(localStorage.getItem('altar_pendientes') || '[]'); l.push(datos); localStorage.setItem('altar_pendientes', JSON.stringify(l)); }catch(e){}
+  }
+  function enviar(){
+    leerForm();
+    if(!ultimo.texto){ aviso('Escriba su memoria o pulse Omitir.'); return; }
+    if(!ultimo.sag && !ultimo.exp && !ultimo.arc){ aviso('Elija dónde puede usarse su aporte o marque que es sagrado.'); return; }
+    var datos = { texto: ultimo.texto, aparece: ultimo.aparece,
+      permisos: { experiencia: ultimo.exp, archivo: ultimo.arc, sagrado: ultimo.sag }, fecha: new Date().toISOString() };
+    var b = $('enviar'); b.disabled = true; b.textContent = 'Enviando…';
+    var hecho = function(){ irA(idx+1); };
+    fetch('api/memorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(datos) })
+      .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+      .then(function(j){ envio = { estado:'servidor', id:j.id, token:j.token }; hecho(); })
+      .catch(function(){ envio = { estado:'local', id:null, token:null }; guardarLocal(datos); hecho(); });
+  }
+  function retirar(){
+    if(envio.estado==='servidor'){
+      fetch('api/memorias/'+encodeURIComponent(envio.id), { method:'DELETE', headers:{'X-Token':envio.token} })
+        .then(function(r){ if(!r.ok) throw new Error(); envio={estado:'ninguno'}; ultimo.texto=''; irA(idx); aviso('Su aporte se retiró.'); })
+        .catch(function(){ aviso('No se pudo retirar ahora. Intente de nuevo o escriba a CAEDI.'); });
+    } else {
+      try{ localStorage.removeItem('altar_pendientes'); }catch(e){}
+      envio={estado:'ninguno'}; ultimo.texto=''; irA(idx); aviso('Su aporte se retiró de este teléfono.');
+    }
+  }
+  function copiar(){
+    var txt = 'Altar de la Memoria (CAEDI)\nAporte: '+ultimo.texto+'\nAparece: '+(ultimo.aparece==='con'?'con nombre':'sin nombre')+'\nPermisos: '+permisosTxt();
+    var listo = function(ok){ aviso(ok ? 'Resumen copiado.' : 'No se pudo copiar. Seleccione y copie: '+txt.replace(/\n/g,' · ')); };
+    try{ navigator.clipboard.writeText(txt).then(function(){ listo(true); }, function(){ listo(false); }); }catch(e){ listo(false); }
+  }
+  /* ---------- visor de fotos ampliadas ---------- */
+  function mostrarFoto(){
+    var f = visor.lista[visor.i];
+    $('vimg').src = f.archivo; $('vimg').alt = f.alt || '';
+    $('valt').innerHTML = esc(f.alt || '') + (f.credito ? '<small>Foto: '+esc(f.credito)+'</small>' : '');
+    var varias = visor.lista.length > 1; $('vant').hidden = !varias; $('vsig').hidden = !varias;
+  }
+  function abrirVisor(lista, i){
+    visor.lista = lista; visor.i = i; visor.estaba = pausado;
+    pausado = true; if(media) media.pause(); rotuloPP();
+    mostrarFoto(); $('visor').hidden = false; $('vcerrar').focus();
+  }
+  function cerrarVisor(){
+    $('visor').hidden = true; pausado = visor.estaba; rotuloPP();
+    if(!pausado && media){ var p = media.play(); if(p && p.catch) p.catch(function(){}); }
+  }
+  $('vcerrar').onclick = cerrarVisor;
+  $('vant').onclick = function(){ visor.i = (visor.i - 1 + visor.lista.length) % visor.lista.length; mostrarFoto(); };
+  $('vsig').onclick = function(){ visor.i = (visor.i + 1) % visor.lista.length; mostrarFoto(); };
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !$('visor').hidden) cerrarVisor(); });
+
+  function enlazar(){
+    var c = CAPITULOS[idx];
+    if(c.tipo==='memoria'){
+      var lista = MEMORIAS[c.id].fotos || [];
+      Array.prototype.forEach.call($('chapter').querySelectorAll('.fotos button'), function(b){
+        b.onclick = function(){ abrirVisor(lista, +b.getAttribute('data-f')); };
+      });
+    }
+    if(c.tipo==='formulario'){
+      var sag = $('fsag');
+      var sync = function(){ ['o1','o2'].forEach(function(id){ var o=$(id); o.className = 'opt'+(sag.checked?' off':''); o.querySelector('input').disabled = sag.checked; }); };
+      sag.onchange = sync; sync();
+      $('f').onsubmit = function(e){ e.preventDefault(); enviar(); };
+      $('omitir').onclick = function(){ leerForm(); envio = { estado:'omitido' }; irA(idx+1); };
+    }
+    if(c.tipo==='cierre'){
+      if($('copiar')) $('copiar').onclick = copiar;
+      if($('retirar')) $('retirar').onclick = retirar;
+      $('otra').onclick = function(){ irA(0); };
+    }
+  }
+
+  /* ---------- controles ---------- */
+  $('pp').onclick = function(){
+    var c = CAPITULOS[idx];
+    pausado = !pausado;
+    if(media){ if(pausado) media.pause(); else { $('vwrap').hidden = false; var p = media.play(); if(p && p.catch) p.catch(function(){}); } }
+    else if(!pausado && c.tipo==='memoria' && !soloFotos){ reproducir(c.id); }
+    rotuloPP(); musicaSegun();
+  };
+  $('prev').onclick = function(){ irA(idx-1); };
+  $('next').onclick = function(){ siguiente(); };
+  $('tsize').onclick = function(){
+    si = (si+1)%3; document.documentElement.style.setProperty('--k', SIZES[si]);
+    this.textContent = si===0 ? 'A+' : (si===1 ? 'A++' : 'A');
+  };
+  $('tsub').onclick = function(){ subs = !subs; this.setAttribute('aria-pressed', subs); if(idx>=0) pintarCapitulo(); };
+  $('tmus').onclick = function(){ musicaOn = !musicaOn; this.setAttribute('aria-pressed', musicaOn); musicaSegun(); };
+  $('thc').onclick = function(){ var on = document.body.classList.toggle('hc'); this.setAttribute('aria-pressed', on); };
+
+  /* ---------- sin internet: el service worker guarda todo la primera vez ---------- */
+  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+    navigator.serviceWorker.register('sw.js').then(function(){
+      return navigator.serviceWorker.ready;
+    }).then(function(){ $('offpill').hidden = false; }).catch(function(){});
+  }
+}
+</script>
+</body>
+</html>

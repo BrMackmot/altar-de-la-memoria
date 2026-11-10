@@ -1,0 +1,15 @@
+Coloque aquí el video de cada memoria:
+
+  rio.mp4
+  canto.mp4
+  persona.mp4
+
+Formato recomendado: MP4 con video H.264 y audio AAC, 1280 x 720 (horizontal), de 40 a 50 segundos y menos de 8 MB cada uno.
+Los tres videos, con la interacción, suman unos 3 minutos de experiencia.
+
+Antes de filmar:
+  - Pida a cada persona su consentimiento por escrito y confirme qué usos autoriza.
+  - Filme con luz natural y con el teléfono apoyado, para que la imagen no tiemble.
+  - Si hay un canto o una oración de uso litúrgico, confirme con la persona responsable que puede mostrarse fuera de su espacio de fe.
+
+Si falta el video, la página reproduce el audio de la carpeta audio/. Si faltan los dos, lo indica en pantalla.

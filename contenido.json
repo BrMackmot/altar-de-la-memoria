@@ -1,0 +1,140 @@
+{
+  "_nota": "Edite los textos entre corchetes. Los campos video, poster y fotos los llena herramientas/preparar_medios.py. recorte dice qué segundos del video original se usan.",
+  "bienvenida": "Este altar guarda tres memorias de familias de CAEDI, cada una ligada a su territorio de origen: el río, el canto y una persona. Escúchelas en orden, o toque un punto del altar. Al final podrá dejar la suya, con sus permisos.",
+  "memorias": {
+    "rio": {
+      "nombre": "El río",
+      "lugar": "[Lugar de origen, dicho por la persona]",
+      "quien": "[Nombre de la persona, con su permiso]",
+      "texto": "[Transcripción de la grabación autorizada sobre el río y el lugar de origen.]",
+      "video": "video/rio.mp4",
+      "poster": "video/rio-portada.jpg",
+      "audio": "",
+      "fotos": [
+        {
+          "archivo": "fotos/rio-1.jpg",
+          "origen": "01-costa-pacifico.jpg",
+          "alt": "Playa de arena frente a una montaña cubierta de selva y palmeras, vista desde el mar.",
+          "credito": ""
+        }
+      ],
+      "recorte": {
+        "inicio": 0,
+        "duracion": 45
+      }
+    },
+    "canto": {
+      "nombre": "El canto",
+      "lugar": "[Lugar de origen del canto]",
+      "quien": "[Nombre de la persona o del grupo, con su permiso]",
+      "texto": "[Transcripción o descripción del canto. Si es de uso litúrgico, confirme antes que puede mostrarse.]",
+      "video": "video/canto.mp4",
+      "poster": "video/canto-portada.jpg",
+      "audio": "",
+      "fotos": [
+        {
+          "archivo": "fotos/canto-1.jpg",
+          "origen": "01-iglesia-fachada.png",
+          "alt": "Fachada blanca y crema de una iglesia de estilo gótico con tres torres, bajo un cielo nublado; una persona espera en las escaleras.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/canto-2.jpg",
+          "origen": "02-iglesia-asamblea.png",
+          "alt": "Interior de una iglesia de columnas altas: la asamblea de pie en las bancas mira hacia el altar.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/canto-3.jpg",
+          "origen": "03-musicos.jpg",
+          "alt": "Un joven toca la guitarra y otro las congas rojas durante un encuentro de la comunidad, frente a los vitrales.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/canto-4.jpg",
+          "origen": "04-asamblea-canta.jpg",
+          "alt": "La asamblea canta y aplaude de pie entre las sillas, frente a los vitrales.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/canto-5.jpg",
+          "origen": "05-microfono.jpg",
+          "alt": "Un joven canta con el micrófono en el salón comunitario.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/canto-6.jpg",
+          "origen": "06-cantante.jpg",
+          "alt": "Un joven canta con el micrófono mientras otra persona baila detrás de él.",
+          "credito": ""
+        }
+      ],
+      "recorte": {
+        "inicio": 0,
+        "duracion": 45
+      }
+    },
+    "persona": {
+      "nombre": "Una persona",
+      "lugar": "[Lugar de origen de la persona]",
+      "quien": "[Nombre de la persona, con su permiso]",
+      "texto": "[Transcripción de lo que esta persona quiere que se recuerde.]",
+      "video": "",
+      "poster": "",
+      "audio": "",
+      "fotos": [
+        {
+          "archivo": "fotos/persona-1.jpg",
+          "origen": "01-foro-celac-africa.png",
+          "alt": "Ocho personas, varias con trajes africanos, posan juntas y sonrientes en el Foro CELAC–África, Colombia 2026.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-2.jpg",
+          "origen": "02-entrevista.jpg",
+          "alt": "Dos hombres conversan sentados; uno sostiene una tela estampada mientras el otro explica con las manos.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-3.jpg",
+          "origen": "03-cocina-mazorcas.jpg",
+          "alt": "Tres personas sonríen en una cocina junto a una olla grande donde se fríen trozos de mazorca.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-4.jpg",
+          "origen": "04-grupo.jpg",
+          "alt": "Cinco personas de la comunidad sonríen juntas junto a un árbol de Navidad.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-5.jpg",
+          "origen": "05-cocina-olla.jpg",
+          "alt": "Una religiosa revuelve con una cuchara de madera una olla grande en la cocina.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-6.jpg",
+          "origen": "06-testimonio.jpg",
+          "alt": "Dos hombres hablan al grupo con un micrófono frente a una pared de ladrillo.",
+          "credito": ""
+        },
+        {
+          "archivo": "fotos/persona-7.jpg",
+          "origen": "07-bogota-santamaria.png",
+          "alt": "La plaza de toros La Santamaría y las Torres del Parque, en Bogotá, la ciudad donde vive hoy la comunidad.",
+          "credito": ""
+        }
+      ],
+      "recorte": {
+        "inicio": 0,
+        "duracion": 45
+      }
+    }
+  },
+  "musica": {
+    "archivo": "musica/fondo.mp3",
+    "volumen": 0.3,
+    "credito": "Tambores, maracas y cantos de la comunidad. [Grupo, lugar y fecha de la grabación, con su permiso]"
+  }
+}
